@@ -9,7 +9,6 @@ jobs:
       with:
         node-version: '12.x'
     - run: npm install
-    - run: npm test
     - uses: goodsmileduck/yandex-serverless-action@master
       env:
         SOURCE_DIR: '.'
