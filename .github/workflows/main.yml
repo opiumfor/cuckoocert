@@ -5,6 +5,7 @@ jobs:
   buildAndDeploy:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@master
     - uses: actions/setup-node@v1
       with:
         node-version: '12.x'
@@ -22,3 +23,4 @@ jobs:
         BUCKET: ${{ secrets.BUCKET }}
         ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        TIMEOUT: 30s
