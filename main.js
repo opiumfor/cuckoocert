@@ -31,7 +31,7 @@ const checkDomains = domainList.map(async hostname => {
   };
 });
 
-(async () => {
+module.exports.handler = async () => {
   await Promise.all(checkDomains).then(checkedDomains => {
     debugger;
     const expiringDomains = checkedDomains.filter(it => it.daysRemaining < expiryThreshold);
@@ -44,4 +44,4 @@ const checkDomains = domainList.map(async hostname => {
         .join('\n'),
     );
   });
-})();
+};
