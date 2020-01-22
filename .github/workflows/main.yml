@@ -2,10 +2,19 @@ name: Sync Bucket
 on: push
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:    
+    - uses: actions/checkout@master
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - run: npm install
+    
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
     - uses: goodsmileduck/yandex-serverless-action@master
       env:
         SOURCE_DIR: '.'
