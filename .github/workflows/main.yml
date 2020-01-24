@@ -17,7 +17,7 @@ jobs:
         FUNCTION_NAME: 'cuckoocert'
         RUNTIME: 'nodejs12'
         ENTRYPOINT: 'main.lambdaEntryPoint'
-        ENVIRONMENT: "SOCKS_PASSWORD: ${{ secrets.SOCKS_PASSWORD }}"
+        ENVIRONMENT: "SOCKS_PASSWORD=${{ secrets.SOCKS_PASSWORD }}"
         CLOUD_ID: ${{ secrets.CLOUD_ID }}
         FOLDER_ID: ${{ secrets.FOLDER_ID }}
         TOKEN: ${{ secrets.TOKEN }}
