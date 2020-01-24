@@ -44,12 +44,13 @@ const lambdaEntryPoint = async () => {
   // console.log('Certificates about to expire: ', expiringDomains);
   return telegram.sendMessage(
     chatId,
-    expiringDomains
-      .map(element => `${element.hostname}: ${element.daysRemaining} days left`)
-      .join('\n'),
+    'SSL Certificates about to expire: \n\n' +
+      expiringDomains
+        .map(element => `${element.hostname}: ${element.daysRemaining} days left`)
+        .join('\n'),
   );
 };
 
 module.exports.lambdaEntryPoint = lambdaEntryPoint;
 
-// lambdaEntryPoint();
+lambdaEntryPoint();
