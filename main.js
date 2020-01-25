@@ -50,8 +50,6 @@ const lambdaEntryPoint = async () => {
           .map(element => `${element.hostname}: ${element.daysRemaining} days left`)
           .join('\n'),
     );
-  } else {
-    console.log('nothing to say...');
   }
 };
 
