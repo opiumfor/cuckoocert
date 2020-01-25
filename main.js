@@ -42,15 +42,19 @@ const lambdaEntryPoint = async () => {
   const checkedDomains = await Promise.all(checkDomainsPromises);
   const expiringDomains = checkedDomains.filter(it => it.daysRemaining < expiryThreshold);
   // console.log('Certificates about to expire: ', expiringDomains);
-  return telegram.sendMessage(
-    chatId,
-    'SSL Certificates about to expire: \n\n' +
-      expiringDomains
-        .map(element => `${element.hostname}: ${element.daysRemaining} days left`)
-        .join('\n'),
-  );
+  if (expiringDomains.length > 0) {
+    return telegram.sendMessage(
+      chatId,
+      'SSL Certificates about to expire: \n\n' +
+        expiringDomains
+          .map(element => `${element.hostname}: ${element.daysRemaining} days left`)
+          .join('\n'),
+    );
+  } else {
+    console.log('nothing to say...');
+  }
 };
 
 module.exports.lambdaEntryPoint = lambdaEntryPoint;
 
-// lambdaEntryPoint();
+lambdaEntryPoint();
