@@ -57,4 +57,4 @@ const lambdaEntryPoint = async () => {
 
 module.exports.lambdaEntryPoint = lambdaEntryPoint;
 
-lambdaEntryPoint();
+// lambdaEntryPoint();
