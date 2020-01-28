@@ -1,24 +1,27 @@
-require('dotenv').config();
+const {
+  DOMAIN_LIST_URI: domainListURI,
+  EXPIRY_THRESHOLD: expiryThreshold,
+  BOT_TOKEN: botToken,
+  SOCKS_USERNAME: socksUsername,
+  SOCKS_PASSWORD: socksPassword,
+  SOCKS_HOST: socksHost,
+  SOCKS_PORT: socksPort,
+  CHAT_ID: chatId,
+} = process.env;
+
 const sslChecker = require('ssl-checker');
-const fs = require('fs');
 const SocksProxy = require('socks5-https-client/lib/Agent');
 const Telegram = require('telegraf/telegram');
 const axios = require('axios');
 
-const e = process.env;
-const domainListURI = e.DOMAIN_LIST_URI;
-const expiryThreshold = e.EXPIRY_THRESHOLD;
-const botToken = e.BOT_TOKEN;
-
 const telegram = new Telegram(botToken, {
   agent: new SocksProxy({
-    socksUsername: e.SOCKS_USERNAME,
-    socksPassword: e.SOCKS_PASSWORD,
-    socksHost: e.SOCKS_HOST,
-    socksPort: e.SOCKS_PORT,
+    socksUsername,
+    socksPassword,
+    socksHost,
+    socksPort,
   }),
 });
-const chatId = e.CHAT_ID;
 
 const getDomainListFromURL = async () => {
   return await axios.get(domainListURI).then(response => {
@@ -29,30 +32,46 @@ const getDomainListFromURL = async () => {
 const getCheckDomainsPromises = async () => {
   const domainList = await getDomainListFromURL();
   return domainList.map(async hostname => {
-    const { daysRemaining } = await sslChecker(hostname);
-    return {
-      hostname,
-      daysRemaining,
-    };
+    const host = hostname.split(':')[0] || hostname;
+    const port = hostname.split(':')[1] || 443;
+    try {
+      const { daysRemaining } = await sslChecker(host, { method: 'HEAD', port: port });
+      return {
+        hostname,
+        daysRemaining,
+      };
+    } catch (error) {
+      console.log(`Hostname: ${host} \nport: ${port} \n${error}`);
+      return {
+        hostname,
+        error,
+      };
+    }
   });
 };
 
 const lambdaEntryPoint = async () => {
-  const checkDomainsPromises = await getCheckDomainsPromises();
-  const checkedDomains = await Promise.all(checkDomainsPromises);
-  const expiringDomains = checkedDomains.filter(it => it.daysRemaining < expiryThreshold);
-  // console.log('Certificates about to expire: ', expiringDomains);
-  if (expiringDomains.length > 0) {
-    return telegram.sendMessage(
-      chatId,
-      'SSL Certificates about to expire: \n\n' +
-        expiringDomains
-          .map(element => `${element.hostname}: ${element.daysRemaining} days left`)
-          .join('\n'),
+  try {
+    const checkDomainsPromises = await getCheckDomainsPromises();
+    const checkedDomains = await Promise.all(checkDomainsPromises);
+    const expiringDomains = checkedDomains.filter(
+      it => it.error || it.daysRemaining < expiryThreshold,
     );
+    if (expiringDomains.length > 0) {
+      return await telegram.sendMessage(
+        chatId,
+        'SSL Certificates about to expire: \n\n' +
+          expiringDomains
+            .map(element =>
+              element.error
+                ? `\n${element.hostname}:\nError: ${element.error.message}\n`
+                : `${element.hostname}: ${element.daysRemaining} days left`,
+            )
+            .join('\n'),
+      );
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
-
 module.exports.lambdaEntryPoint = lambdaEntryPoint;
-
-// lambdaEntryPoint();
