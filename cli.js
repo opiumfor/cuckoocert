@@ -1,4 +1,4 @@
 require('dotenv').config();
-const main = require('./main');
+const cuckoocert = require('./cuckoocert');
 
-main.lambdaEntryPoint().catch(console.log);
+cuckoocert.checkEndpointsAndSendReport().catch(console.log);
