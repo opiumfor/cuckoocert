@@ -1,5 +1,8 @@
 name: Deploy to Yandex Cloud Functions
-on: push
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   buildAndDeploy:
