@@ -94,4 +94,4 @@ const checkEndpointsAndSendReport = async () => {
   return sendReportViaTelegram(report);
 };
 
-module.exports = { checkEndpointsAndSendReport };
+module.exports = { checkEndpointsAndSendReport, getEndpointsListFromURI };
