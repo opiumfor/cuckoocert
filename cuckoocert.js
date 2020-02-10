@@ -76,14 +76,6 @@ const generateReport = endpoints => {
     : null;
 };
 
-const sendReportViaTelegram = async report => {
-  try {
-    return await telegram.sendMessage(chatId, report);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 const checkEndpointsAndSendReport = async () => {
   const endpointsList = await getEndpointsListFromURI(endpointsListURI);
   const endpoints = parseEndpointsList(endpointsList);
@@ -91,7 +83,12 @@ const checkEndpointsAndSendReport = async () => {
   const noteworthyEndpoints = getNoteworthyEndpoints(checkedEndpoints);
   const report = generateReport(noteworthyEndpoints);
 
-  return sendReportViaTelegram(report);
+  if (report) {
+    await telegram.sendMessage(chatId, report);
+    return 'report has been sent';
+  } else {
+    return 'nothing to send';
+  }
 };
 
 module.exports = { checkEndpointsAndSendReport, getEndpointsListFromURI };
