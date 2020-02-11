@@ -58,10 +58,10 @@ const checkEndpoints = async endpoints => {
 };
 
 const getNoteworthyEndpoints = checkedEndpoints => {
-  const noteworthyEndpoints = checkedEndpoints.filter(
+  const notableEndpoints = checkedEndpoints.filter(
     endpoint => endpoint.error || endpoint.daysRemaining < expiryThreshold,
   );
-  return noteworthyEndpoints.length > 0 ? noteworthyEndpoints : null;
+  return notableEndpoints.length > 0 ? notableEndpoints : null;
 };
 
 const generateReport = endpoints => {
@@ -76,13 +76,17 @@ const generateReport = endpoints => {
     : null;
 };
 
-const checkEndpointsAndSendReport = async () => {
+const makeNotableEndpointsReport = async () => {
   const endpointsList = await getEndpointsListFromURI(endpointsListURI);
   const endpoints = parseEndpointsList(endpointsList);
   const checkedEndpoints = await checkEndpoints(endpoints);
-  const noteworthyEndpoints = getNoteworthyEndpoints(checkedEndpoints);
-  const report = generateReport(noteworthyEndpoints);
+  const notableEndpoints = getNoteworthyEndpoints(checkedEndpoints);
 
+  return generateReport(notableEndpoints);
+};
+
+const sendNotableEndpointsReportViaTelegram = async () => {
+  const report = await makeNotableEndpointsReport();
   if (report) {
     await telegram.sendMessage(chatId, report);
     return 'report has been sent';
@@ -91,4 +95,8 @@ const checkEndpointsAndSendReport = async () => {
   }
 };
 
-module.exports = { checkEndpointsAndSendReport, getEndpointsListFromURI };
+module.exports = {
+  sendNotableEndpointsReportViaTelegram,
+  getEndpointsListFromURI,
+  makeNotableEndpointsReport,
+};

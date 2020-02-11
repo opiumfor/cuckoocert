@@ -18,12 +18,21 @@ const argv = require('yargs')
   )
   .command(
     'check',
-    'Check the endpoints and send report via telegram',
+    'Check the endpoints and either print result to STDOUT (default) or send it via Telegram',
     () => {},
     argv => {
-      cuckoocert.checkEndpointsAndSendReport().catch(console.log);
+      if (argv.telegram) {
+        cuckoocert.sendNotableEndpointsReportViaTelegram().catch(console.log);
+      } else {
+        cuckoocert.makeNotableEndpointsReport().then(console.log);
+      }
     },
   )
+  .option('telegram', {
+    alias: 't',
+    type: 'boolean',
+    description: 'Send report via Telegram',
+  })
   .help('h')
   .alias('h', 'help')
   .epilog('The End').argv;
