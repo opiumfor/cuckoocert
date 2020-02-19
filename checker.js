@@ -1,4 +1,5 @@
 const axios = require('axios');
+const moment = require('moment');
 
 const addHttps = url => {
   if (!/^(?:f|ht)tps?\:\/\//.test(url)) {
@@ -25,8 +26,13 @@ const getCertificate = async uri => {
 
 const getCertificateExpiryDate = async uri => {
   return await request(addHttps(uri)).then(response => {
-    return response.request.socket.getPeerCertificate().valid_to;
+    return new Date(response.request.socket.getPeerCertificate().valid_to);
   });
 };
 
-module.exports = { getCertificateExpiryDate, getCertificate };
+const getDaysToExpire = async uri => {
+  const expiryDate = moment(await getCertificateExpiryDate(uri));
+  return expiryDate.diff(moment(), 'days');
+};
+
+module.exports = { getCertificateExpiryDate, getCertificate, getDaysToExpire };

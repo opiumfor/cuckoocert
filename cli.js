@@ -22,7 +22,7 @@ const argv = require('yargs')
     'Show expiry date for single endpoint',
     () => {},
     async argv => {
-      const expiryDate = await checker.getCertificateExpiryDate(argv.uri);
+      const expiryDate = await checker.getDaysToExpire(argv.uri);
       console.log(expiryDate);
     },
   )
