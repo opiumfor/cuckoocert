@@ -1,8 +1,9 @@
-name: Sync Bucket
+name: Deploy to Yandex Cloud Functions
 on:
   push:
     branches:
       - master
+      - coolCli
 
 jobs:
   buildAndDeploy:
@@ -19,8 +20,8 @@ jobs:
         ZONE: 'ru-central1-a'
         FUNCTION_NAME: 'cuckoocert'
         RUNTIME: 'nodejs12'
-        ENTRYPOINT: 'main.lambdaEntryPoint'
-        ENVIRONMENT: "DOMAIN_LIST_URI=${{ secrets.DOMAIN_LIST_URI }},SOCKS_HOST=${{ secrets.SOCKS_HOST }},SOCKS_PORT=${{ secrets.SOCKS_PORT }},SOCKS_USERNAME=${{ secrets.SOCKS_USERNAME }},SOCKS_PASSWORD=${{ secrets.SOCKS_PASSWORD }},EXPIRY_THRESHOLD=${{ secrets.EXPIRY_THRESHOLD }},CHAT_ID=${{ secrets.CHAT_ID }},BOT_TOKEN=${{ secrets.BOT_TOKEN }}"
+        ENTRYPOINT: 'cuckoocert.checkEndpointsAndSendReport'
+        ENVIRONMENT: "ENDPOINTS_LIST_URI=${{ secrets.ENDPOINTS_LIST_URI }},SOCKS_HOST=${{ secrets.SOCKS_HOST }},SOCKS_PORT=${{ secrets.SOCKS_PORT }},SOCKS_USERNAME=${{ secrets.SOCKS_USERNAME }},SOCKS_PASSWORD=${{ secrets.SOCKS_PASSWORD }},EXPIRY_THRESHOLD=${{ secrets.EXPIRY_THRESHOLD }},CHAT_ID=${{ secrets.CHAT_ID }},BOT_TOKEN=${{ secrets.BOT_TOKEN }}"
         CLOUD_ID: ${{ secrets.CLOUD_ID }}
         FOLDER_ID: ${{ secrets.FOLDER_ID }}
         TOKEN: ${{ secrets.TOKEN }}
