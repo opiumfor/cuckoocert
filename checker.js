@@ -19,7 +19,7 @@ const request = axios.create({
 
 const getCertificate = async uri => {
   return await request(addHttps(uri)).then(response => {
-    return response.request;
+    return response.request.socket.getPeerCertificate();
   });
 };
 
