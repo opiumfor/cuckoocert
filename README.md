@@ -1,5 +1,12 @@
 ### cuckooCert
-SSL Certificates expiry notifications via Telegram
+SSL Certificates checker
+
+- Command-line utility 
+- CI/CD into Yandex Cloud Functions (see .github/workflows/main.yml, 
+  you also surely can use it with any other serverless functions solution)
+- Reports to Telegram via socks-proxy
+
+Have a nice cuckooing!
 
 ### Configuration
 
@@ -14,4 +21,4 @@ The following settings must be passed as environment variables.
 | `SOCKS_PASSWORD` | Socks-proxy password |
 | `SOCKS_HOST` | Socks-proxy hostname or ip-address |
 | `SOCKS_PORT` | Socks-proxy port |
-| `DOMAIN_LIST_URI` | URI of a list of domains to monitor, one per line |
+| `ENDPOINTS_LIST_URI` | URI of a list of domains to monitor, one per line, optional port, e.g. "example.com:443"|

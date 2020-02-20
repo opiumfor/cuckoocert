@@ -68,7 +68,6 @@ const generateReport = endpoints => {
 
 const makeNotableEndpointsReport = async () => {
   const endpointsList = await getEndpointsListFromURI(endpointsListURI);
-  // const endpoints = parseEndpointsList(endpointsList);
   const checkedEndpoints = await checkEndpoints(endpointsList);
   const notableEndpoints = getNoteworthyEndpoints(checkedEndpoints);
 
