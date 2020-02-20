@@ -3,6 +3,7 @@ const Telegram = require('telegraf/telegram');
 const axiosConfig = require('./axiosConfig');
 const request = axiosConfig.get;
 const checker = require('./checker');
+const fs = require('fs').promises;
 const {
   ENDPOINTS_LIST_URI: endpointsListURI,
   EXPIRY_THRESHOLD: expiryThreshold,
@@ -27,6 +28,11 @@ const getEndpointsListFromURI = async uri => {
   return await request(uri).then(response => {
     return response.data.toString().split('\n');
   });
+};
+
+const getEndpointsListFromFile = async filePath => {
+  const endpoints = await fs.readFile(filePath, 'utf8');
+  return endpoints.split('\n');
 };
 
 const checkEndpoints = async endpoints => {
@@ -66,16 +72,18 @@ const generateReport = endpoints => {
     : null;
 };
 
-const makeNotableEndpointsReport = async () => {
-  const endpointsList = await getEndpointsListFromURI(endpointsListURI);
+const makeNotableEndpointsReport = async ({ filePath } = {}) => {
+  const endpointsList = filePath
+    ? await getEndpointsListFromFile(filePath)
+    : await getEndpointsListFromURI(endpointsListURI);
   const checkedEndpoints = await checkEndpoints(endpointsList);
   const notableEndpoints = getNotableEndpoints(checkedEndpoints);
 
   return generateReport(notableEndpoints);
 };
 
-const sendNotableEndpointsReportViaTelegram = async () => {
-  const report = await makeNotableEndpointsReport();
+const sendNotableEndpointsReportViaTelegram = async options => {
+  const report = await makeNotableEndpointsReport(options);
   if (report) {
     await telegram.sendMessage(chatId, report);
     return 'report has been sent';
@@ -88,4 +96,5 @@ module.exports = {
   sendNotableEndpointsReportViaTelegram,
   getEndpointsListFromURI,
   makeNotableEndpointsReport,
+  getEndpointsListFromFile,
 };
