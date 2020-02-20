@@ -6,9 +6,9 @@
   "dependencies": {
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
+    "moment": "^2.24.0",
     "prettier": "^1.19.1",
     "socks5-https-client": "^1.2.1",
-    "ssl-checker": "^2.0.4",
     "telegraf": "^3.35.0",
     "yargs": "^15.1.0"
   },
