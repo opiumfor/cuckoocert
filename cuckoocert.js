@@ -12,7 +12,6 @@ const {
   SOCKS_HOST: socksHost,
   SOCKS_PORT: socksPort,
   CHAT_ID: chatId,
-  CONNECT_TIMEOUT: connectTimeout,
 } = process.env;
 
 const telegram = new Telegram(botToken, {
