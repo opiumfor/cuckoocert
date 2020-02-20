@@ -30,39 +30,10 @@ const getEndpointsListFromURI = async uri => {
   });
 };
 
-const parseEndpointsList = endpointsList => {
-  return endpointsList.map(endpoint => {
-    const host = endpoint.split(':')[0] || endpoint;
-    const port = endpoint.split(':')[1] || 443;
-    return { host, port };
-  });
-};
-
-const checkEndpointsV2 = async endpoints => {
-  const checkedEndpoints = endpoints.map(async endpoint => {
-    try {
-      const daysRemaining = await checker.getDaysToExpire(endpoint);
-      return {
-        endpoint,
-        daysRemaining,
-      };
-    } catch (error) {
-      return {
-        endpoint,
-        error,
-      };
-    }
-  });
-  return Promise.all(checkedEndpoints);
-};
-
 const checkEndpoints = async endpoints => {
   const checkedEndpoints = endpoints.map(async endpoint => {
     try {
-      const { daysRemaining } = await sslChecker(endpoint.host, {
-        method: 'HEAD',
-        port: endpoint.port,
-      });
+      const daysRemaining = await checker.getDaysToExpire(endpoint);
       return {
         endpoint,
         daysRemaining,
@@ -84,7 +55,7 @@ const getNoteworthyEndpoints = checkedEndpoints => {
   return notableEndpoints.length > 0 ? notableEndpoints : null;
 };
 
-const generateReportV2 = endpoints => {
+const generateReport = endpoints => {
   return endpoints
     ? endpoints
         .map(endpoint => {
@@ -96,25 +67,13 @@ const generateReportV2 = endpoints => {
     : null;
 };
 
-const generateReport = endpoints => {
-  return endpoints
-    ? endpoints
-        .map(endpoint => {
-          return endpoint.error
-            ? `\n${endpoint.endpoint.host}:\nError: ${endpoint.error.message}\n`
-            : `${endpoint.endpoint.host}: ${endpoint.daysRemaining} days left`;
-        })
-        .join('\n')
-    : null;
-};
-
 const makeNotableEndpointsReport = async () => {
   const endpointsList = await getEndpointsListFromURI(endpointsListURI);
   // const endpoints = parseEndpointsList(endpointsList);
-  const checkedEndpoints = await checkEndpointsV2(endpointsList);
+  const checkedEndpoints = await checkEndpoints(endpointsList);
   const notableEndpoints = getNoteworthyEndpoints(checkedEndpoints);
 
-  return generateReportV2(notableEndpoints);
+  return generateReport(notableEndpoints);
 };
 
 const sendNotableEndpointsReportViaTelegram = async () => {
