@@ -21,4 +21,4 @@ The following settings must be passed as environment variables.
 | `SOCKS_PASSWORD` | Socks-proxy password |
 | `SOCKS_HOST` | Socks-proxy hostname or ip-address |
 | `SOCKS_PORT` | Socks-proxy port |
-| `ENDPOINTS_LIST_URI` | URI of a list of domains to monitor, one per line, optional port, e.g. "example.com:443"|
+| `ENDPOINTS_LIST_URI` | URI of a list of endpoints to monitor, one per line, optional port, e.g. "example.com:443"|
