@@ -47,7 +47,7 @@ const checkEndpoints = async endpoints => {
   return Promise.all(checkedEndpoints);
 };
 
-const getNoteworthyEndpoints = checkedEndpoints => {
+const getNotableEndpoints = checkedEndpoints => {
   const notableEndpoints = checkedEndpoints.filter(
     endpoint => endpoint.error || endpoint.daysRemaining < expiryThreshold,
   );
@@ -69,7 +69,7 @@ const generateReport = endpoints => {
 const makeNotableEndpointsReport = async () => {
   const endpointsList = await getEndpointsListFromURI(endpointsListURI);
   const checkedEndpoints = await checkEndpoints(endpointsList);
-  const notableEndpoints = getNoteworthyEndpoints(checkedEndpoints);
+  const notableEndpoints = getNotableEndpoints(checkedEndpoints);
 
   return generateReport(notableEndpoints);
 };
