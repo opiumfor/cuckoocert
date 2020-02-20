@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S node --no-warnings
 require('dotenv').config();
 const { ENDPOINTS_LIST_URI: endpointsListURI } = process.env;
 
@@ -6,7 +6,10 @@ const cuckoocert = require('./cuckoocert');
 const checker = require('./checker');
 const argv = require('yargs')
   // show help if no command given
-  .demandCommand(1, '')
+  .demandCommand()
+  .recommendCommands()
+  .strict()
+  .showHelpOnFail(true)
   .usage('Usage: $0 <command> [options]')
   .command(
     'show',
@@ -46,7 +49,7 @@ const argv = require('yargs')
   )
   .command(
     'check',
-    'Check the endpoints and either print result to STDOUT (default) or send it via Telegram',
+    'Check the endpoints and either print result to STDOUT (default) or send it via Telegram (-t or --telegram)',
     () => {},
     argv => {
       if (argv.telegram) {

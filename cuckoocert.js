@@ -1,7 +1,8 @@
-const sslChecker = require('ssl-checker');
 const SocksProxy = require('socks5-https-client/lib/Agent');
 const Telegram = require('telegraf/telegram');
-const axios = require('axios');
+const axiosConfig = require('./axiosConfig');
+const request = axiosConfig.get;
+const checker = require('./checker');
 const {
   ENDPOINTS_LIST_URI: endpointsListURI,
   EXPIRY_THRESHOLD: expiryThreshold,
@@ -11,6 +12,7 @@ const {
   SOCKS_HOST: socksHost,
   SOCKS_PORT: socksPort,
   CHAT_ID: chatId,
+  CONNECT_TIMEOUT: connectTimeout,
 } = process.env;
 
 const telegram = new Telegram(botToken, {
@@ -23,7 +25,7 @@ const telegram = new Telegram(botToken, {
 });
 
 const getEndpointsListFromURI = async uri => {
-  return await axios.get(uri).then(response => {
+  return await request(uri).then(response => {
     return response.data.toString().split('\n');
   });
 };
@@ -34,6 +36,24 @@ const parseEndpointsList = endpointsList => {
     const port = endpoint.split(':')[1] || 443;
     return { host, port };
   });
+};
+
+const checkEndpointsV2 = async endpoints => {
+  const checkedEndpoints = endpoints.map(async endpoint => {
+    try {
+      const daysRemaining = await checker.getDaysToExpire(endpoint);
+      return {
+        endpoint,
+        daysRemaining,
+      };
+    } catch (error) {
+      return {
+        endpoint,
+        error,
+      };
+    }
+  });
+  return Promise.all(checkedEndpoints);
 };
 
 const checkEndpoints = async endpoints => {
@@ -64,6 +84,18 @@ const getNoteworthyEndpoints = checkedEndpoints => {
   return notableEndpoints.length > 0 ? notableEndpoints : null;
 };
 
+const generateReportV2 = endpoints => {
+  return endpoints
+    ? endpoints
+        .map(endpoint => {
+          return endpoint.error
+            ? `\n${endpoint.endpoint}:\nError: ${endpoint.error.message}\n`
+            : `${endpoint.endpoint}: ${endpoint.daysRemaining} days left`;
+        })
+        .join('\n')
+    : null;
+};
+
 const generateReport = endpoints => {
   return endpoints
     ? endpoints
@@ -78,11 +110,11 @@ const generateReport = endpoints => {
 
 const makeNotableEndpointsReport = async () => {
   const endpointsList = await getEndpointsListFromURI(endpointsListURI);
-  const endpoints = parseEndpointsList(endpointsList);
-  const checkedEndpoints = await checkEndpoints(endpoints);
+  // const endpoints = parseEndpointsList(endpointsList);
+  const checkedEndpoints = await checkEndpointsV2(endpointsList);
   const notableEndpoints = getNoteworthyEndpoints(checkedEndpoints);
 
-  return generateReport(notableEndpoints);
+  return generateReportV2(notableEndpoints);
 };
 
 const sendNotableEndpointsReportViaTelegram = async () => {
