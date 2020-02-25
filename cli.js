@@ -16,8 +16,13 @@ const argv = require('yargs')
     'Show the list of endpoints to check',
     () => {},
     async argv => {
-      const endpointsList = await cuckoocert.getEndpointsListFromURI(endpointsListURI);
-      console.log(endpointsList);
+      if (argv.file) {
+        const endpointsList = await cuckoocert.getEndpointsListFromFile(argv.file);
+        console.log(endpointsList);
+      } else {
+        const endpointsList = await cuckoocert.getEndpointsListFromURI(endpointsListURI);
+        console.log(endpointsList);
+      }
     },
   )
   .command(
@@ -51,11 +56,12 @@ const argv = require('yargs')
     'check',
     'Check the endpoints and either print result to STDOUT (default) or send it via Telegram (-t or --telegram)',
     () => {},
-    argv => {
+    async argv => {
       if (argv.telegram) {
-        cuckoocert.sendNotableEndpointsReportViaTelegram().catch(console.log);
+        await cuckoocert.sendNotableEndpointsReportViaTelegram({ filePath: argv.file });
       } else {
-        cuckoocert.makeNotableEndpointsReport().then(console.log);
+        const report = await cuckoocert.makeNotableEndpointsReport({ filePath: argv.file });
+        console.log(report);
       }
     },
   )
@@ -63,6 +69,11 @@ const argv = require('yargs')
     alias: 't',
     type: 'boolean',
     description: 'Send report via Telegram',
+  })
+  .option('file', {
+    alias: 'f',
+    type: 'string',
+    description: 'Get endpoints list from file rather than URL',
   })
   .help('h')
   .alias('h', 'help')
