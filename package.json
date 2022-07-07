@@ -6,7 +6,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "prettier": "^1.19.1",
     "socks5-https-client": "^1.2.1",
     "telegraf": "^3.35.0",
